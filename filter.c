@@ -69,14 +69,14 @@ int matches(const char* pattern, const char* text)
     return 0;
 }
 
-const char * MAP[] = (const char *[]){
+const char * TABLE[] = (const char *[]){
     /* [0] */ "+",
     /* [1] */ "",
     /* [2] */ "abcABC",
     /* [3] */ "defDEF",
     /* [4] */ "ghiGHI",
     /* [5] */ "jklJKL",
-    /* [6] */ "mno-mno",
+    /* [6] */ "mnoMNO",
     /* [7] */ "pqrsPQRS",
     /* [8] */ "tuvTUV",
     /* [9] */ "wxyzWXYZ",
@@ -90,7 +90,7 @@ int character_matches(char pattern, char text)
     if (pattern == text)
         return -1;
 
-    const char * additional = MAP[pattern - '0'];
+    const char * additional = TABLE[pattern - '0'];
     for (int i=0; i<strlen(additional); i++)
     {
         if (additional[i] == text)
