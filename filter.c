@@ -15,13 +15,20 @@ int main(int argc, const char* argv[]) {
 
     char name[100];
     char phone[100];
+    int found = 0;
 
     while (read(name) && read(phone))
     {
         if (matches(argv[1], name) || matches(argv[1], phone))
         {
             printf("%s, %s\n", name, phone);
+            found = -1;
         }
+    }
+
+    if (!found)
+    {
+        printf("Nothing found...\n");
     }
 
    return 0; 
