@@ -5,11 +5,14 @@ int read(char* text);
 int matches(const char* pattern, const char* text);
 int character_matches(char pattern, char text);
 int find(const char* text, char pattern, int position);
-
+const char * assert_valid_argument(int argc, const char* argv[]);
+int isphone(char c);
+int assert_valid_phone(const char * phone);
 int main(int argc, const char* argv[]) {
-    if (argc < 2) 
+    const char * filter;
+
+    if (!(filter = assert_valid_argument(argc, argv))) 
     {
-        printf("Syntax: filter PATTERN < seznam.txt\n");
         return -1;
     }
 
@@ -19,7 +22,12 @@ int main(int argc, const char* argv[]) {
 
     while (read(name) && read(phone))
     {
-        if (matches(argv[1], name) || matches(argv[1], phone))
+        if (!assert_valid_phone(phone))
+        {
+            return -2;
+        }
+
+        if (matches(filter, name) || matches(filter, phone))
         {
             printf("%s, %s\n", name, phone);
             found = -1;
@@ -115,6 +123,46 @@ int find(const char* text, char pattern, int position)
         if (character_matches(pattern, text[i]))
         {
             return i;
+        }
+    }
+
+    return -1;
+}
+
+const char * assert_valid_argument(int argc, const char* argv[]) 
+{
+    if (argc < 2) 
+    {
+        printf("Syntax: filter PATTERN < seznam.txt\n");
+        return NULL;
+    }
+
+    return argv[1];
+}
+
+const char * PHONE_CHARS = "+0123456789";
+
+int isphone(char c)
+{
+    for (int i=0; i<strlen(PHONE_CHARS); i++)
+    {
+        if (c == PHONE_CHARS[i])
+        {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+int assert_valid_phone(const char * phone)
+{
+    for (int i=0; i<strlen(phone); i++)
+    {
+        if (!isphone(phone[i]))
+        {
+            printf("Invalid phone number [%s], error at position %d!", phone, i+1);
+            return 0;
         }
     }
 
