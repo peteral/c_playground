@@ -2,9 +2,9 @@
 #include <string.h>
 #include "filter.h"
 
-int read(char* text) 
+int read(char* text, FILE * input) 
 {
-    if (!fgets(text, 100, stdin))
+    if (!fgets(text, 100, input))
     {
         return 0;
     }
@@ -89,11 +89,11 @@ int find(const char* text, char pattern, int position)
     return -1;
 }
 
-const char * assert_valid_argument(int argc, const char* argv[]) 
+const char * assert_valid_argument(int argc, const char* argv[], FILE * output) 
 {
     if (argc < 2) 
     {
-        printf("Syntax: filter PATTERN < seznam.txt\n");
+        fprintf(output, "Syntax: filter PATTERN < seznam.txt\n");
         return NULL;
     }
 
@@ -115,16 +115,51 @@ int isphone(char c)
     return 0;
 }
 
-int assert_valid_phone(const char * phone)
+int assert_valid_phone(const char * phone, FILE * output)
 {
     for (int i=0; i<strlen(phone); i++)
     {
         if (!isphone(phone[i]))
         {
-            printf("Invalid phone number [%s], error at position %d!", phone, i+1);
+            fprintf(output, "Invalid phone number [%s], error at position %d!", phone, i+1);
             return 0;
         }
     }
 
     return -1;
+}
+
+int filter(int argc, const char* argv[], FILE * input, FILE * output) 
+{
+    const char * filter;
+
+    if (!(filter = assert_valid_argument(argc, argv, output))) 
+    {
+        return -1;
+    }
+
+    char name[100];
+    char phone[100];
+    int found = 0;
+
+    while (read(name, input) && read(phone, input))
+    {
+        if (!assert_valid_phone(phone, input))
+        {
+            return -2;
+        }
+
+        if (matches(filter, name) || matches(filter, phone))
+        {
+            fprintf(output, "%s, %s\n", name, phone);
+            found = -1;
+        }
+    }
+
+    if (!found)
+    {
+        fprintf(output, "Nothing found...\n");
+    }
+
+   return 0; 
 }
