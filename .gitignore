@@ -1,3 +1,4 @@
 filter.exe
 a.out
 .vscode/
+build/
