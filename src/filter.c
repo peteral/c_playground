@@ -158,7 +158,7 @@ int filter(int argc, const char* argv[], FILE * input, FILE * output)
 
     if (!found)
     {
-        fprintf(output, "Nothing found...\n");
+        fprintf(output, "not found\n");
     }
 
    return 0; 

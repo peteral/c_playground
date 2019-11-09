@@ -45,6 +45,60 @@ START_TEST(assert_valid_argument_no_arguments_prints_error)
 }
 END_TEST
 
+START_TEST(read_eof_returns_false)
+{
+  char buffer[100];
+  ck_assert(!read(buffer, input));
+}
+END_TEST
+
+START_TEST(read_newline_returns_false)
+{
+  char buffer[100];
+  fprintf(input, "\n");
+  rewind(input);
+
+  ck_assert(!read(buffer, input));
+}
+
+START_TEST(read_valid_data_returns_true_and_fills_buffer_correctly)
+{
+  char buffer[100];
+  fprintf(input, "Hello\n");
+  rewind(input);
+
+  ck_assert(read(buffer, input));
+  ck_assert_str_eq(buffer, "Hello");
+}
+
+START_TEST(filter_no_match_correct_output)
+{
+  const char *argv[] = {"check_filter", "922"};
+  fprintf(input, "%s\n%s\n", "Alex", "+4912346");
+  rewind(input);
+
+  filter(2, argv, input, output);
+
+  rewind(output);
+  char buffer[100];
+  fgets(buffer, sizeof(buffer), output);
+  ck_assert_str_eq("not found\n", buffer);
+}
+
+START_TEST(filter_match_correct_output)
+{
+  const char *argv[] = {"check_filter", "123"};
+  fprintf(input, "%s\n%s\n", "Alex", "+4912346");
+  rewind(input);
+
+  filter(2, argv, input, output);
+
+  rewind(output);
+  char buffer[100];
+  fgets(buffer, sizeof(buffer), output);
+  ck_assert_str_eq("Alex, +4912346\n", buffer);
+}
+
 void setup(void)
 {
   input = tmpfile();
@@ -77,12 +131,35 @@ TCase * assert_valid_argument_case(void)
     return testcase;
 }
 
+TCase * read_case(void)
+{
+    TCase *testcase = tcase_create("read");
+
+    tcase_add_checked_fixture(testcase, setup, teardown);
+    tcase_add_test(testcase, read_newline_returns_false);
+    tcase_add_test(testcase, read_eof_returns_false);
+    tcase_add_test(testcase, read_valid_data_returns_true_and_fills_buffer_correctly);
+    return testcase;
+}
+
+TCase * filter_case(void)
+{
+    TCase *testcase = tcase_create("filter");
+
+    tcase_add_checked_fixture(testcase, setup, teardown);
+    tcase_add_test(testcase, filter_no_match_correct_output);
+    tcase_add_test(testcase, filter_match_correct_output);
+    return testcase;
+}
+
 Suite * filter_suite(void)
 {
     Suite *s = suite_create("Filter");
 
     suite_add_tcase(s, isphone_case());
     suite_add_tcase(s, assert_valid_argument_case());
+    suite_add_tcase(s, read_case());
+    suite_add_tcase(s, filter_case());
 
     return s;
 }
