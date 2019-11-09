@@ -1,0 +1,8 @@
+Build on Win10 Home + WSL (Ubuntu) with build-essential + cmake
+
+mkdir build
+cd build
+cmake ..
+make
+
+(or just use CMake Tools Extension for VSCode)
